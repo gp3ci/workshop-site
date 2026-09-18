@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>InstaLite</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!--
+        FRONTEND STAGES
+        Stage 1: This page sends and reads posts through the Java REST API.
+        Stage 2: The page stays unchanged when the backend starts storing posts
+        in H2/JPA, because both stages expose the same /api/posts endpoints.
+    -->
+    <div class="navbar">
+        <h2>InstaLite</h2>
+    </div>
+
+    <div class="container">
+        <!-- Stage 1 and Stage 2: post data is submitted through app.js. -->
+        <form id="post-form" class="card">
+            <h3>Create Post</h3>
+            <input type="text" id="caption-input" placeholder="Write a caption..." required>
+            <input type="text" id="image-input" placeholder="Image URL (e.g. https://picsum.photos/400)" required>
+            <button type="submit">Share Post</button>
+        </form>
+
+        <!-- Stage 1 and Stage 2: posts returned by the backend are rendered here. -->
+        <div id="feed"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

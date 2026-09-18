@@ -1,0 +1,119 @@
+================================================================================
+          INSTALITE FULL-STACK WORKSHOP: COMPLETE REFERENCE GUIDE
+================================================================================
+
+1. PREREQUISITES & VS CODE EXTENSIONS
+--------------------------------------------------------------------------------
+Before starting, ensure the following tools and VS Code extensions are installed:
+
+* Software:
+  - Java Development Kit (JDK 17 or higher)
+  - Maven (or bundled Maven via VS Code)
+
+* VS Code Extensions:
+  1. Extension Pack for Java (Microsoft)
+  2. Spring Boot Extension Pack (VMware)
+  3. Live Server (Ritwick Dey) - For running frontend HTML/JS
+  4. Postman (Postman) - For testing API endpoints directly inside VS Code
+
+
+2. GENERATING THE BACKEND (SPRING INITIALIZR)
+--------------------------------------------------------------------------------
+1. Open a browser and navigate to: https://start.spring.io
+2. Select the following settings:
+   - Project: Maven
+   - Language: Java
+   - Spring Boot: 4.0.8 (or any stable 3.x.x version; avoid SNAPSHOT/M versions like 4.1.1)
+   - Group: com.example
+   - Artifact: demo
+   - Packaging: Jar
+   - Java: 17
+3. Dependencies to Add:
+   - Day 1: Spring Web
+   - Day 2: Spring Data JPA, H2 Database
+4. Click GENERATE (or press Ctrl + Enter) to download the zip file (`demo.zip`).
+5. Extract the `.zip` contents directly into your project's `backend/` directory.
+6. Open ONLY the `backend/` folder in VS Code (File > Open Folder... > backend).
+
+
+3. EVOLUTION OF THE APPLICATION (3 STAGES OF DATA PERSISTENCE)
+--------------------------------------------------------------------------------
+Stage 1: Frontend Only (Browser-Only)
+- Data resides in browser RAM (JavaScript variables/DOM).
+- Behavior: Refreshing the page clears all posts completely.
+
+Stage 2: Spring Boot with In-Memory List (Day 1)
+- Data resides in Java Heap Memory (`List<Post>` inside `PostController.java`).
+- Behavior: Refreshing the browser retains data (fetches from Java). Restarting 
+  the Spring Boot server resets and clears all data.
+
+Stage 3: Spring Boot + H2 Relational Database + Seeding (Day 2)
+- Data resides in H2 SQL Tables managed by Spring Data JPA.
+- Configuration:
+  * Add `spring.jpa.defer-datasource-initialization=true` to `application.properties`.
+  * Place a `data.sql` file inside `src/main/resources/` with SQL INSERT statements:
+    INSERT INTO post (caption, image_url) VALUES ('Welcome!', 'https://picsum.photos/400');
+- Behavior: On server restart, Spring automatically populates default records from 
+  `data.sql`. Data is safely fetched and persisted across page reloads.
+
+
+4. VERIFYING BACKEND STATUS & POSTMAN TESTING
+--------------------------------------------------------------------------------
+How to Run the Backend:
+1. Open `DemoApplication.java` in VS Code.
+2. Click the "Run" button displayed above `public static void main(String[] args)` 
+   or press F5.
+3. Check the Terminal: Look for the line indicating:
+   "Tomcat started on port 8080 (http) with context path ''"
+
+How to Test via Postman VS Code Extension:
+1. Click the Postman icon on the left sidebar in VS Code -> New Request.
+2. Test GET (Fetch Posts):
+   - Method: GET
+   - URL: http://localhost:8080/api/posts
+   - Click Send -> Expected output: Status 200 OK with `[]` or JSON array of posts.
+3. Test POST (Create Post):
+   - Method: POST
+   - URL: http://localhost:8080/api/posts
+   - Headers: Content-Type = application/json
+   - Body: Raw -> JSON:
+     {
+       "caption": "Hello world!",
+       "imageUrl": "https://picsum.photos/400"
+     }
+   - Click Send -> Expected output: Status 200 OK echoing the saved post back.
+
+
+5. COMMON ERRORS & TROUBLESHOOTING MATRIX
+--------------------------------------------------------------------------------
+ERROR 1: "Main method not found" or "Activating Extension stuck forever"
+- Cause: VS Code Java Language Server extension workspace crashed or root folder mismatch.
+- FIX:
+  1. Press Ctrl + Shift + P -> Type "Java: Clean Java Language Server Workspace" 
+     -> Click "Restart and Delete".
+  2. Ensure you opened ONLY the `backend/` folder directly in VS Code (File > Open Folder).
+
+ERROR 2: "Project configuration is not up-to-date with pom.xml" or "No org installed"
+- Cause: VS Code failed to re-index dependencies after updating `pom.xml`.
+- FIX:
+  1. Open `pom.xml`. Right-click anywhere in the editor -> Select "Reload Project".
+  2. Alternatively, press Ctrl + Shift + P -> Run "Java: Update Project Configuration".
+
+ERROR 3: `TypeError: Failed to fetch` or `NET::ERR_CONNECTION_REFUSED`
+- Cause: Spring Boot application is not running, or `API_URL` has a typo.
+- FIX:
+  1. Ensure `DemoApplication.java` is running and Tomcat is active on port 8080.
+  2. Double-check `app.js` endpoint: `const API_URL = 'http://localhost:8080/api/posts';`
+
+ERROR 4: `CORS Policy Blocked`
+- Cause: Browser blocks frontend (port 5500) from talking to backend (port 8080).
+- FIX: Ensure `@CrossOrigin(origins = "*")` is placed directly above your controller:
+  @RestController
+  @RequestMapping("/api/posts")
+  @CrossOrigin(origins = "*")
+  public class PostController { ... }
+
+ERROR 5: `400 Bad Request`
+- Cause: JavaScript JSON key names do not match Java `Post.java` field names.
+- FIX: Ensure field names match case-sensitively (`caption` and `imageUrl`).
+================================================================================
